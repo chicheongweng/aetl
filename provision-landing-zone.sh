@@ -187,18 +187,9 @@ az storage container create --name $STORAGE_CONTAINER_NAME --account-name $STORA
 STORAGE_ACCOUNT_ID=$(az storage account show --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP --query id -o tsv)
 echo "STORAGE_ACCOUNT_ID: $STORAGE_ACCOUNT_ID"
 
-echo "Creating Storage Private Endpoint"
-az network private-endpoint create --name $STORAGE_ENDPOINT_NAME_BLOB --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --subnet $STORAGE_SUBNET_NAME --private-connection-resource-id $STORAGE_ACCOUNT_ID --connection-name $STORAGE_ENDPOINT_NAME_BLOB --location $REGION --group-ids blob
-az network private-endpoint dns-zone-group create --resource-group $RESOURCE_GROUP --endpoint-name $STORAGE_ENDPOINT_NAME_BLOB --name zone-group --private-dns-zone $DNS_ZONE_NAME_5 --zone-name blob
-
 # create fileshare
 echo "Creating fileshare $STORAGE_SHARE_NAME in storage account $STORAGE_ACCOUNT_NAME"
 az storage share create --name $STORAGE_SHARE_NAME --account-name $STORAGE_ACCOUNT_NAME --quota 10
-
-# create a private endpoint for fileshare
-echo "Creating Storage Private Endpoint for Fileshare"
-az network private-endpoint create --name $STORAGE_ENDPOINT_NAME_FILESHARE --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --subnet $STORAGE_SUBNET_NAME --private-connection-resource-id $STORAGE_ACCOUNT_ID --connection-name $STORAGE_ENDPOINT_NAME_FILESHARE --location $REGION --group-ids file
-az network private-endpoint dns-zone-group create --resource-group $RESOURCE_GROUP --endpoint-name $STORAGE_ENDPOINT_NAME_FILESHARE --name zone-group --private-dns-zone $DNS_ZONE_NAME_6 --zone-name file
 
 # create private endpoint for the storage account
 echo "Creating private endpoint for the storage account $STORAGE_ACCOUNT_NAME"
@@ -207,6 +198,15 @@ echo "Creating network security group $STORAGE_NSG_NAME"
 az network nsg create --name $STORAGE_NSG_NAME --resource-group $RESOURCE_GROUP --location $REGION
 az network nsg rule create --name Allow-All-Outbound --nsg-name $STORAGE_NSG_NAME --resource-group $RESOURCE_GROUP --priority 100 --protocol '*' --direction Outbound --source-address-prefixes '*' --source-port-ranges '*' --destination-address-prefixes '*' --destination-port-ranges '*' --access Allow
 az network vnet subnet update --name $STORAGE_SUBNET_NAME --vnet-name $VNET_NAME --resource-group $RESOURCE_GROUP --network-security-group $STORAGE_NSG_NAME
+
+echo "Creating Storage Private Endpoint for Blob"
+az network private-endpoint create --name $STORAGE_ENDPOINT_NAME_BLOB --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --subnet $STORAGE_SUBNET_NAME --private-connection-resource-id $STORAGE_ACCOUNT_ID --connection-name $STORAGE_ENDPOINT_NAME_BLOB --location $REGION --group-ids blob
+az network private-endpoint dns-zone-group create --resource-group $RESOURCE_GROUP --endpoint-name $STORAGE_ENDPOINT_NAME_BLOB --name zone-group --private-dns-zone $DNS_ZONE_NAME_5 --zone-name blob
+
+# create a private endpoint for fileshare
+echo "Creating Storage Private Endpoint for Fileshare"
+az network private-endpoint create --name $STORAGE_ENDPOINT_NAME_FILESHARE --resource-group $RESOURCE_GROUP --vnet-name $VNET_NAME --subnet $STORAGE_SUBNET_NAME --private-connection-resource-id $STORAGE_ACCOUNT_ID --connection-name $STORAGE_ENDPOINT_NAME_FILESHARE --location $REGION --group-ids file
+az network private-endpoint dns-zone-group create --resource-group $RESOURCE_GROUP --endpoint-name $STORAGE_ENDPOINT_NAME_FILESHARE --name zone-group --private-dns-zone $DNS_ZONE_NAME_6 --zone-name file
 
 # create log analytics workspace
 echo "Creating log analytics workspace $LOG_ANALYTICS_WORKSPACE_NAME in $REGION"
