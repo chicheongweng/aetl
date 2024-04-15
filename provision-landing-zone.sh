@@ -315,7 +315,7 @@ az network private-endpoint dns-zone-group create --resource-group $RESOURCE_GRO
 echo "Enabling public access to App Service $APP1_NAME"
 az resource update -g $RESOURCE_GROUP -n $APP1_NAME --resource-type Microsoft.Web/sites --set properties.publicNetworkAccess=Enabled
 
-############################################################################################# 1 Configure SSL
+############################################################################################# 1 Create App Gateway
 echo "Creating App Gateway Public IP"
 az network public-ip create -n $APPGW_PUBLIC_IP_NAME -g $RESOURCE_GROUP --allocation-method Static --sku Standard --zone 1 2 3
 
